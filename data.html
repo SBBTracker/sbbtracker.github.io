@@ -46,6 +46,7 @@
       src="//cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"
       crossorigin="anonymous"
     ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -73,31 +74,90 @@
     <div class="container">
       <!-- Example row of columns -->
       <!-- <div id="stats"></div> -->
-      <table id="stats" class="display" width="100%"></table>
+      <!-- <canvas id="myChart" width="400" height="400"></canvas> -->
+      <div>
+        <select id='match-type'>
+          <option value="0">All Matches</option>
+          <option value="1">Mythic Only</option>
+        </select>
+        <label id="last-updated">Last updated on:</label>
+      </div>
+      <table id="total" class="display" width="100%"></table>
+      <table id="mythic" class="display" width="100%"></table>
     </div> <!-- /container -->
   </body>
   <script >
-    $.get('./stats/placements.tsv', function(data) {
+    $.get('./stats/placements.json', function(data) {
 
-    // start the table
-    // var html = '<table id="statos">';
+      table = []
+      mythic_table = []
 
-    // split into lines
-    var rows = data.split("\n");
+      for ( hero in data.total ) {
+        hero_data = data.total[hero]
+        table.push([hero, hero_data.placement, hero_data.matches, hero])
+        mythic_hero = data.mythic[hero]
+        mythic_table.push([hero, mythic_hero.placement, mythic_hero.matches, hero])
+      }
 
-    var heads = rows[0].split("\t").map((col) => {
-      return {title: col.replace("\r", "")}})
-
-    var [, ...rest] = rows.map((row) => row.split("\t"))
-
-    $(document).ready( function () {
-      $('#stats').DataTable({
-        data: rest,
-        columns: heads,
-        paging: false
-      });
-    } );
-
+      function tabelize(dom, array) {
+        $(document).ready( function () {
+          $("#"+dom).DataTable({
+            data: array,
+            columns: [
+              {title:"hero"}, 
+              {title:"placement"}, 
+              {title:"matches"}, 
+              {
+                title:"histogram",
+                "sortable": false,
+                "render": function(data, type, row, meta) {
+                    return `<canvas id="${data}-${dom}" height=25 width=50></canvas>`
+                }}],
+            searching: false, paging: false, info: false,
+            initComplete: function(settings, json) {
+              for (hero in data[dom]) {
+                const ctx = document.getElementById(`${hero}-${dom}`).getContext('2d');
+                const myChart = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                    labels: ['1', '2', '3', '4', '5', '6', '7', '8'],
+                    datasets: [{
+                      label: 'Placements',
+                      data: data[dom][hero].histogram,
+                      borderWidth: 1
+                    }]
+                  },
+                  options: {
+                    plugins: {
+                      legend: false,
+                    }
+                  }
+                });
+              }
+            }
+          });
+        });
+      }
+      tabelize("total", table)
+      tabelize("mythic", mythic_table)
+            
+      $("#last-updated").text(`Last updated on: ${data['last-updated']} with ${data['players']} players submitting ${data['matches']} matches` )
+    })
+    $(document).ready(function(){
+      $('#match-type').on('change', function() { chooseTable(this.value) })
+      $('#match-type').on('load', function() { chooseTable(this.value) })
     });
-  </script>
+
+    function chooseTable(value) {
+      console.log(value)
+      if ( value == '0') {
+        $("#total").show();
+        $("#mythic").hide();
+      } else {
+        $("#total").hide();
+        $("#mythic").show();
+      }
+
+    };
+    </script>
 </html>
