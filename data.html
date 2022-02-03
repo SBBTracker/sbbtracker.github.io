@@ -129,8 +129,10 @@
                   }
                 });
               }
-              $('#match-type').on('change', function() { chooseTable(this.value) })
-              chooseTable($('#match-type').val())
+              if (dom === "mythic") {
+                $('#match-type').on('change', function() { chooseTable(this.value) })
+                chooseTable($('#match-type').val())
+              }
             }
           });
         });
