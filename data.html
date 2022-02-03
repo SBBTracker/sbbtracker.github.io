@@ -12,14 +12,8 @@
 
     <title>SBBTracker</title>
     <style>
-      body {
-        padding-top: 60px;
-      }
-      @media (max-width: 979px) {
-        body {
-          padding-top: 0px;
-        }
-      }
+      body { padding-top: 70px; }
+      tr { height: 5vh; }
     </style>
 
  <!-- Bootstrap -->
@@ -111,7 +105,7 @@
                 title:"histogram",
                 "sortable": false,
                 "render": function(data, type, row, meta) {
-                    return `<canvas id="${data}-${dom}" height=25 width=50></canvas>`
+                    return `<canvas id="${data}-${dom}" height=100vh ></canvas>`
                 }}],
             searching: false, paging: false, info: false,
             initComplete: function(settings, json) {
@@ -130,7 +124,8 @@
                   options: {
                     plugins: {
                       legend: false,
-                    }
+                    },
+                    responsive: false
                   }
                 });
               }
@@ -145,21 +140,18 @@
             
       $("#last-updated").text(`Last updated on: ${data['last-updated']} with ${data['players']} players submitting ${data['matches']} matches` )
     })
-    // $(document).ready(function(){
-    //   $('#match-type').on('change', function() { chooseTable(this.value) })
-    //   chooseTable($('#match-type').val())
-    // });
 
     function chooseTable(value) {
-      console.log(value)
+      total_table = $("#total")
+      mythic_table = $("#mythic")
       if ( value == '0') {
-        $("#total").show();
-        $("#total").width("100%");
-        $("#mythic").hide();
+        total_table.show();
+        total_table.DataTable().columns.adjust().draw();
+        mythic_table.hide();
       } else {
-        $("#total").hide();
-        $("#mythic").show();
-        $("#mythic").width("100%");
+        total_table.hide();
+        mythic_table.show();
+        mythic_table.DataTable().columns.adjust().draw();
       }
 
     };
