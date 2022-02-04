@@ -88,9 +88,9 @@
 
       for ( hero in data.total ) {
         hero_data = data.total[hero]
-        table.push([hero, hero_data.placement, hero_data.matches, hero])
+        table.push([hero, hero_data.placement, hero_data.matches, hero_data["win-percent"], hero])
         mythic_hero = data.mythic[hero]
-        mythic_table.push([hero, mythic_hero.placement, mythic_hero.matches, hero])
+        mythic_table.push([hero, mythic_hero.placement, mythic_hero.matches, mythic_hero["win-percent"], hero])
       }
 
       function tabelize(dom, array) {
@@ -99,10 +99,11 @@
             data: array,
             columns: [
               {title:"hero"}, 
-              {title:"placement"}, 
+              {title:"avg placement"}, 
               {title:"matches"}, 
+              {title:"win %"},
               {
-                title:"histogram",
+                title:"placements",
                 "sortable": false,
                 "render": function(data, type, row, meta) {
                     return `<canvas id="${data}-${dom}" height=100vh ></canvas>`
