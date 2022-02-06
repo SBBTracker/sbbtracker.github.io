@@ -8,6 +8,14 @@ from sbbtracker_datasci.utils import load_data
 
 import numpy as numpy
 
+
+def update_dict(input_dict, places):
+    input_dict["placement"] = round(mean(places), 2)
+    input_dict["histogram"] = numpy.histogram(places, bins=8)[0].tolist()
+    input_dict["matches"] = len(places)
+    input_dict["win-percent"] = round(input_dict["histogram"][0] / len(places) * 100, 2)
+
+
 download.download_data()
 
 load_data.load_data()
@@ -39,22 +47,17 @@ for match in load_data.GLOBAL_DATA.all_data[load_data.GLOBAL_DATA.latest_patch]:
 total_places = []
 total_mythic_places = []
 for hero in placements:
-    places = placements[hero]
-    total_places.extend(places)
+    total_places.extend(placements[hero])
     total_mythic_places.extend(mythic_placements[hero])
 
     total_data = stats["total"][hero]
     mythic_data = stats["mythic"][hero]
-    total_data["placement"] = round(mean(places), 2)
-    total_data["histogram"] = numpy.histogram(places, bins=8)[0].tolist()
-    total_data["matches"] = len(places)
-    total_data["win-percent"] = round(total_data["histogram"][0] / len(places) * 100, 2)
-    mythic_data["placement"] = round(mean(mythic_placements[hero]), 2)
-    mythic_data["histogram"] = numpy.histogram(mythic_placements[hero], bins=8)[0].tolist()
-    mythic_data["matches"] = len(mythic_placements[hero])
-    mythic_data["win-percent"] = round(mythic_data["histogram"][0] / len(mythic_placements[hero]) * 100, 2)
 
+    update_dict(total_data, placements[hero])
+    update_dict(mythic_data, mythic_placements[hero])
 
+update_dict(stats["total"]["All Heroes"], total_places)
+update_dict(stats["mythic"]["All Heroes"], total_mythic_places)
 stats["players"] = len(players)
 stats["matches"] = num_matches
 stats["last-updated"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + " EST"
