@@ -1,0 +1,15 @@
+name: GitHub Pages
+
+on:
+  schedule:
+    - cron: "30 0 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - run: ./build.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.github_token }}
+        DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
