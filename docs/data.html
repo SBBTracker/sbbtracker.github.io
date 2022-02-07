@@ -73,11 +73,13 @@
         <select id='match-type'>
           <option value="0">All Matches</option>
           <option value="1">Mythic Only</option>
+          <option value="2">Non-Mythic Only</option>
         </select>
         <label id="last-updated">Last updated on:</label>
       </div>
       <table id="total" class="display" width="100%"></table>
       <table id="mythic" class="display" width="100%"></table>
+      <table id="nonmythic" class="display" width="100%"></table>
     </div> <!-- /container -->
   </body>
   <script >
@@ -85,12 +87,15 @@
 
       table = []
       mythic_table = []
+      nonmythic_table = []
 
       for ( hero in data.total ) {
         hero_data = data.total[hero]
         table.push([hero, hero_data.placement, hero_data.matches, hero_data["win-percent"], hero])
         mythic_hero = data.mythic[hero]
         mythic_table.push([hero, mythic_hero.placement, mythic_hero.matches, mythic_hero["win-percent"], hero])
+        nonmythic_hero = data.nonmythic[hero]
+        nonmythic_table.push([hero, nonmythic_hero.placement, nonmythic_hero.matches, nonmythic_hero["win-percent"], hero])
       }
 
       function tabelize(dom, array) {
@@ -137,7 +142,7 @@
                   }
                 });
               }
-              if (dom === "mythic") {
+              if (dom === "nonmythic") {
                 $('#match-type').on('change', function() { chooseTable(this.value) })
                 chooseTable($('#match-type').val())
               }
@@ -147,6 +152,7 @@
       }
       tabelize("total", table)
       tabelize("mythic", mythic_table)
+      tabelize("nonmythic", nonmythic_table)
             
       $("#last-updated").text(`Last updated on: ${data['last-updated']} with ${data['players']} players submitting ${data['matches']} matches` )
     })
@@ -154,14 +160,22 @@
     function chooseTable(value) {
       total_table = $("#total")
       mythic_table = $("#mythic")
+      nonmythic_table = $("#nonmythic")
       if ( value == '0') {
         total_table.show();
         total_table.DataTable().columns.adjust().draw();
         mythic_table.hide();
-      } else {
+        nonmythic_table.hide();
+      } else if ( value == '1'){
         total_table.hide();
         mythic_table.show();
         mythic_table.DataTable().columns.adjust().draw();
+        nonmythic_table.hide();
+      } else {
+        total_table.hide();
+        mythic_table.hide();
+        nonmythic_table.show();
+        nonmythic_table.DataTable().columns.adjust().draw();
       }
 
     };
