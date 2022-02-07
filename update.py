@@ -36,7 +36,7 @@ for match in load_data.GLOBAL_DATA.all_data[load_data.GLOBAL_DATA.latest_patch]:
     placement = match_dict["placement"]
     if match_dict["combat-info"]:
         combat = match_dict["combat-info"][0]['combat']
-        if player_id in combat:
+        if player_id in combat and 'hero-name' in combat[player_id]:
             hero_name = combat[player_id]['hero-name']
             if hero_name is not None:
                 placements[hero_name].append(placement)
