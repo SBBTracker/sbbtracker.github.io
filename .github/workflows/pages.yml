@@ -9,7 +9,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v1
-        - run: chmod +x build.sh && ./build.sh
+        - run: ./build.sh
           env:
               GITHUB_TOKEN: ${{ secrets.github_token }}
               DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
