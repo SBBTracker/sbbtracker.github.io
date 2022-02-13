@@ -26,7 +26,7 @@ if not data_dir.exists():
 
 
 def download_rollups():
-    for n in range(1, int((datetime.date.today() - patch_date).days)):
+    for n in range(1, int((datetime.datetime.utcnow().date() - patch_date).days)):
         rollup_date = (patch_date + datetime.timedelta(n)).strftime("%Y-%m-%d")
         rollup_url = rollup_base + rollup_date + ".tar.gz"
         r = requests.get(rollup_url, stream=True)
