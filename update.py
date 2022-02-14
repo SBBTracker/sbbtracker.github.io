@@ -31,13 +31,14 @@ def download_rollups():
         rollup_url = rollup_base + rollup_date + ".tar.gz"
         r = requests.get(rollup_url, stream=True)
         local_filename = data_dir.joinpath(rollup_date + ".tar.gz")
-        with open(local_filename, 'wb') as local_file:
-            for chunk in r.raw.stream(1024, decode_content=False):
-                if chunk:
-                    local_file.write(chunk)
-        tar = tarfile.open(local_filename)
-        tar.extractall(data_dir)
-        tar.close()
+        if not local_filename.exists():
+            with open(local_filename, 'wb') as local_file:
+                for chunk in r.raw.stream(1024, decode_content=False):
+                    if chunk:
+                        local_file.write(chunk)
+            tar = tarfile.open(local_filename)
+            tar.extractall(data_dir)
+            tar.close()
 
 
 def update_dict(input_dict, places):
