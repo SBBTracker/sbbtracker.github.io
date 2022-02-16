@@ -16,7 +16,9 @@ try:
 except:
     pass
 
-patch_date = datetime.date(2022, 2, 7)
+names_to_id = {ids[template_id]["Name"]: ids[template_id]["Id"] for template_id in ids}
+
+patch_date = datetime.date(2022, 2, 14)
 # https://9n2ntsouxb.execute-api.us-east-1.amazonaws.com/prod/api/v1/data/daily-rollup/2022-02-11.tar.gz
 rollup_base = "https://9n2ntsouxb.execute-api.us-east-1.amazonaws.com/prod/api/v1/data/daily-rollup/"
 
@@ -103,3 +105,6 @@ stats["last-updated"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + " E
 
 with open("./docs/stats/placements.json", "w", newline='') as out_file:
     json.dump(stats, out_file)
+
+with open("./docs/art/names_to_id.json", "w", newline='') as f:
+    json.dump(names_to_id, f)

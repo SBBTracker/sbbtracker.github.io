@@ -70,12 +70,13 @@
       <!-- <div id="stats"></div> -->
       <!-- <canvas id="myChart" width="400" height="400"></canvas> -->
       <div>
+        <h3>Bossy mini-patch (2022-02-14)</h3>
         <select id='match-type'>
           <option value="0">All Matches</option>
           <option value="1">Mythic Only</option>
           <option value="2">Non-Mythic Only</option>
         </select>
-        <label id="last-updated">Last updated on:</label>
+        <h4 id="last-updated">Last updated on:</h4>
       </div>
       <table id="total" class="display" width="100%"></table>
       <table id="mythic" class="display" width="100%"></table>
@@ -83,6 +84,10 @@
     </div> <!-- /container -->
   </body>
   <script >
+    var ids;
+    $.get('./art/names_to_id.json', function(data) {
+      ids = data
+    })
     $.get('./stats/placements.json', function(data) {
 
       table = []
@@ -91,11 +96,11 @@
 
       for ( hero in data.total ) {
         hero_data = data.total[hero]
-        table.push([hero, hero_data.placement, hero_data.matches, hero_data["win-percent"], hero])
+        table.push([hero, hero, hero_data.placement, hero_data.matches, hero_data["win-percent"] + '%', hero])
         mythic_hero = data.mythic[hero]
-        mythic_table.push([hero, mythic_hero.placement, mythic_hero.matches, mythic_hero["win-percent"], hero])
+        mythic_table.push([hero, hero, mythic_hero.placement, mythic_hero.matches, mythic_hero["win-percent"] + '%', hero])
         nonmythic_hero = data.nonmythic[hero]
-        nonmythic_table.push([hero, nonmythic_hero.placement, nonmythic_hero.matches, nonmythic_hero["win-percent"], hero])
+        nonmythic_table.push([hero, hero, nonmythic_hero.placement, nonmythic_hero.matches, nonmythic_hero["win-percent"] + '%', hero])
       }
 
       function tabelize(dom, array) {
@@ -103,17 +108,28 @@
           $("#"+dom).DataTable({
             data: array,
             columns: [
+              {
+                title: "",
+                "sortable": false,
+                "render": function(data, type, row, meta) {
+                  if (data !== "All Heroes") {
+                    return `<img src="../art/${ids[data]}.png" height=100vh>`
+                  } else {
+                    return ''
+                  }
+              }},
               {title:"hero"}, 
               {title:"avg placement"}, 
               {title:"matches"}, 
-              {title:"win %"},
+              {title:"crown %"},
               {
                 title:"placements",
-                "sortable": false,
+                sortable: false,
                 "render": function(data, type, row, meta) {
                     return `<canvas id="${data}-${dom}" height=100vh ></canvas>`
                 }}],
             searching: false, paging: false, info: false,
+            order: [[1, "asc"]],
             initComplete: function(settings, json) {
               for (hero in data[dom]) {
                 const ctx = document.getElementById(`${hero}-${dom}`).getContext('2d');
@@ -124,8 +140,9 @@
                     datasets: [{
                       label: 'Placements',
                       data: data[dom][hero].histogram,
-                      borderWidth: 1
-                    }]
+                      borderWidth: 1,
+                      backgroundColor: 'rgba(174, 205, 194, 0.75)'
+                    }],
                   },
                   options: {
                     plugins: {
