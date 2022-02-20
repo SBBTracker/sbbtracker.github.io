@@ -73,14 +73,15 @@ for player in os.listdir("data"):
                     combat = match_dict["combat-info"][0]
                     if player_id in combat and 'hero' in combat[player_id]:
                         hero_id = combat[player_id]['hero']
-                        hero_name = ids[hero_id]['Name']
-                        if hero_name is not None:
-                            if match_dict["possibly-mythic"]:
-                                mythics.add(player_id)
-                                mythic_placements[hero_name].append(placement)
-                            else:
-                                nonmythic_placements[hero_name].append(placement)
-                                nonmythic_players.add(player_id)
+                        if hero_id in ids:
+                            hero_name = ids[hero_id]['Name']
+                            if hero_name is not None:
+                                if match_dict["possibly-mythic"]:
+                                    mythics.add(player_id)
+                                    mythic_placements[hero_name].append(placement)
+                                else:
+                                    nonmythic_placements[hero_name].append(placement)
+                                    nonmythic_players.add(player_id)
 
 total_nonmythic_places = []
 total_mythic_places = []
