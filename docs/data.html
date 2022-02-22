@@ -69,146 +69,183 @@
         </select>
         <h4 id="last-updated">Last updated on:</h4>
       </div>
-      <div id="totaldiv">
-        <table id="total" class="table table-bordered" width="100%"></table>
-      </div>
-      <div id="mythicdiv">
-        <table id="mythic" class="table table-bordered" width="100%"></table>
-      </div>
-      <div id="nonmythicdiv">
-        <table id="nonmythic" class="table table-bordered" width="100%"></table>
+      <div id="statsdiv">
+        <table id="stats" class="table table-bordered" width="100%"></table>
       </div>
       
     </div> <!-- /container -->
   </body>
   <script >
     var ids;
+    table = []
+    mythic_table = []
+    nonmythic_table = []
     $.get('./art/names_to_id.json', function(data) {
       ids = data
     })
-    $.get('./stats/placements.json', function(data) {
 
-      table = []
-      mythic_table = []
-      nonmythic_table = []
+    $.get('./stats/placements.json', function(data) {
 
       for ( hero in data.total ) {
         hero_data = data.total[hero]
-        table.push([hero, hero, hero_data.placement, hero_data.matches, hero_data["win-percent"] + '%', hero])
+        table.push([hero, hero, hero_data.placement, hero_data.matches, hero_data["win-percent"] + '%', {histogram: hero_data.histogram, hero: hero}])
         mythic_hero = data.mythic[hero]
-        mythic_table.push([hero, hero, mythic_hero.placement, mythic_hero.matches, mythic_hero["win-percent"] + '%', hero])
+        mythic_table.push([hero, hero, mythic_hero.placement, mythic_hero.matches, mythic_hero["win-percent"] + '%', {histogram: mythic_hero.histogram, hero: hero}])
         nonmythic_hero = data.nonmythic[hero]
-        nonmythic_table.push([hero, hero, nonmythic_hero.placement, nonmythic_hero.matches, nonmythic_hero["win-percent"] + '%', hero])
+        nonmythic_table.push([hero, hero, nonmythic_hero.placement, nonmythic_hero.matches, nonmythic_hero["win-percent"] + '%', {histogram: nonmythic_hero.histogram, hero: hero}])
       }
 
-      function tabelize(dom, array) {
-        $(document).ready( function () {
-          $("#"+dom).DataTable({
-            data: array,
-            columns: [
-              {
-                title: "",
-                "sortable": false,
-                "render": function(data, type, row, meta) {
-                  if (data !== "All Heroes") {
-                    return `<img src="../art/${ids[data]}.png" height=100vh>`
-                  } else {
-                    return ''
-                  }
-              }},
-              {title:"Hero"}, 
-              {title:"Avg Placement"}, 
-              {title:"Matches"}, 
-              {title:"Crown %"},
-              {
-                title:"All Placements",
-                sortable: false,
-                "render": function(data, type, row, meta) {
-                    return `<canvas id="${data}-${dom}" height=100vh ></canvas>`
-                }}],
-            // searching: false, 
-            paging: false, info: false,
-            "search": {
-              "smart": false,
-              "regex": true
-            },
-            order: [[1, "asc"]],
-            initComplete: function(settings, json) {
-              for (hero in data[dom]) {
-                const ctx = document.getElementById(`${hero}-${dom}`).getContext('2d');
-                const myChart = new Chart(ctx, {
-                  type: 'bar',
-                  data: {
-                    labels: ['1', '2', '3', '4', '5', '6', '7', '8'],
-                    datasets: [{
-                      label: 'Placements',
-                      data: data[dom][hero].histogram,
-                      borderWidth: 1,
-                      backgroundColor: 'rgba(174, 205, 194, 0.75)'
-                    }],
-                  },
-                  options: {
-                    plugins: {
-                      legend: false,
-                    },
-                    scales:{
-                      y: {
-                        ticks: {
-                          display: false
-                        },
-                        grid: {
-                          color: 'grey'
-                        }
-                      },
-                      x: {
-                        grid: {
-                          color: 'grey'
-                        }
-                      }
-                    },
-                    responsive: false
-                  }
-                });
-              }
-              if (dom === "nonmythic") {
-                $('#match-type').on('change', function() { chooseTable(this.value) })
-                chooseTable($('#match-type').val())
+      $(document).ready( function () {
+        $("#stats").DataTable({
+          data: table,
+          columns: [
+            {
+              title: "",
+              "sortable": false,
+              "render": function(data, type, row, meta) {
+                if (data !== "All Heroes") {
+                  return `<img src="../art/${ids[data]}.png" height=100vh>`
+                } else {
+                  return ''
+                }
+            }},
+            {title:"Hero"}, 
+            {title:"Avg Placement"}, 
+            {title:"Matches"}, 
+            {title:"Crown %"},
+            {
+              title:"All Placements",
+              sortable: false,
+              "render": function(data, type, row, meta) {
+                  return `<canvas id="${data.hero.replace(/[\W_]+/g,"")}" height=100vh ></canvas>`
+              }}],
+          // searching: false, 
+          paging: false, info: false,
+          "search": {
+            "smart": false,
+            "regex": true
+          },
+          order: [[1, "asc"]],
+          initComplete: function(settings, json) {
+            for (row of table) {
+              hero = row[0]
+              histogram = row[5].histogram
+              updateHistogram(hero,  histogram)
+            }
+            searchParams = GetURLParameter("heroes")
+            if ( searchParams ) {
+              $("#stats").DataTable().search(decodeURI(searchParams.replaceAll(",", "|")), true, false).draw()
+            }
+            dataset = GetURLParameter("dataset")
+            if ( dataset ) {
+              var select = $('#match-type')
+              switch ( dataset ) {
+                case "all":
+                  select.val(0);
+                  chooseTable(0);
+                  break;
+                case "mythic":
+                  select.val(1);
+                  chooseTable(1);
+                  break;
+                case "nonmythic":
+                  select.val(2);
+                  chooseTable(2);
+                  break;
+                default:
+                  // do nothing
               }
             }
-          });
+          }
         });
-      }
-      tabelize("total", table)
-      tabelize("mythic", mythic_table)
-      tabelize("nonmythic", nonmythic_table)
-            
+      });
+
+      $('#match-type').on('change', function() { chooseTable(this.value) })
       $("#last-updated").text(`Last updated on: ${data['last-updated']} with ${data['players']} players submitting ${data['matches']} matches` )
     })
 
     function chooseTable(value) {
-      total_table = $("#total")
-      mythic_table = $("#mythic")
-      nonmythic_table = $("#nonmythic")
-      total_div = $("#totaldiv")
-      mythic_div = $("#mythicdiv")
-      nonmythic_div = $("#nonmythicdiv")
+      stats_table = $("#stats").DataTable()
       if ( value == '0') {
-        total_div.show();
-        total_table.DataTable().columns.adjust().draw();
-        mythic_div.hide();
-        nonmythic_div.hide();
+        stats_table.clear();
+        stats_table.rows.add(table);
+        stats_table.draw();
+        for (row of table) {
+          hero = row[0]
+          histogram = row[5].histogram
+          updateHistogram(hero, histogram)
+        }
       } else if ( value == '1'){
-        total_div.hide();
-        mythic_div.show();
-        mythic_table.DataTable().columns.adjust().draw();
-        nonmythic_div.hide();
+        stats_table.clear();
+        stats_table.rows.add(mythic_table);
+        stats_table.draw();
+        for (row of mythic_table) {
+          hero = row[0]
+          histogram = row[5].histogram
+          updateHistogram(hero, histogram)
+        }
       } else {
-        total_div.hide();
-        mythic_div.hide();
-        nonmythic_div.show();
-        nonmythic_table.DataTable().columns.adjust().draw();
+        stats_table.clear();
+        stats_table.rows.add(nonmythic_table);
+        stats_table.draw();
+        for (row of nonmythic_table) {
+          hero = row[0]
+          histogram = row[5].histogram
+          updateHistogram(hero, histogram)
+        }
       }
-
     };
+
+    function updateHistogram(hero, data) {
+      const el = document.getElementById(`${hero.replace(/[\W_]+/g,"")}`)
+      if ( el ) {
+        const ctx = el.getContext('2d');
+        const myChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['1', '2', '3', '4', '5', '6', '7', '8'],
+            datasets: [{
+              label: 'Placements',
+              data: histogram,
+              borderWidth: 1,
+              backgroundColor: 'rgba(174, 205, 194, 0.75)'
+            }],
+          },
+          options: {
+            plugins: {
+              legend: false,
+            },
+            scales:{
+              y: {
+                ticks: {
+                  display: false
+                },
+                grid: {
+                  color: 'grey'
+                }
+              },
+              x: {
+                grid: {
+                  color: 'grey'
+                }
+              }
+            },
+            responsive: false
+          }
+        });
+      }
+    };
+
+    function GetURLParameter(sParam) {
+      var sPageURL = window.location.search.substring(1);
+      var sURLVariables = sPageURL.split('&');
+      for (var i = 0; i < sURLVariables.length; i++) {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam) {
+          return sParameterName[1];
+        }
+      }
+    }
+
     </script>
 </html>
