@@ -127,11 +127,7 @@
           },
           order: [[1, "asc"]],
           initComplete: function(settings, json) {
-            for (row of table) {
-              hero = row[0]
-              histogram = row[5].histogram
-              updateHistogram(hero,  histogram)
-            }
+            chooseTable($('#match-type').val())
             searchParams = GetURLParameter("heroes")
             if ( searchParams ) {
               $("#stats").DataTable().search(decodeURI(searchParams.replaceAll(",", "|")), true, false).draw()
