@@ -102,7 +102,7 @@ update_dict(stats["mythic"]["All Heroes"], total_mythic_places)
 update_dict(stats["total"]["All Heroes"], total_mythic_places + total_nonmythic_places)
 stats["players"] = len(nonmythic_players) + len(mythics)
 stats["matches"] = num_matches
-stats["last-updated"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + " EST"
+stats["last-updated"] = datetime.datetime.now(pytz).strftime("%Y-%m-%d %H:%M") + " UTC"
 
 with open("./docs/stats/placements.json", "w", newline='') as out_file:
     json.dump(stats, out_file)
