@@ -44,10 +44,10 @@ def download_rollups():
 
 
 def update_dict(input_dict, places):
-    input_dict["placement"] = round(mean(places), 2)
+    input_dict["placement"] = round(mean(places), 2) if len(places) > 0 else 0
     input_dict["histogram"] = numpy.histogram(places, bins=range(1, 10))[0].tolist()
     input_dict["matches"] = len(places)
-    input_dict["win-percent"] = round(input_dict["histogram"][0] / len(places) * 100, 2)
+    input_dict["win-percent"] = round(input_dict["histogram"][0] / len(places) * 100, 2) if len(places) > 0 else 0
 
 
 nonmythic_placements = defaultdict(list)
@@ -75,7 +75,8 @@ for player in os.listdir("data"):
                         hero_id = combat[player_id]['hero']
                         if hero_id in ids:
                             hero_name = ids[hero_id]['Name']
-                            if hero_name is not None:
+                            sbb_id = ids[hero_id]['Id']
+                            if hero_name is not None and "SBB_HERO" in sbb_id:
                                 if match_dict["possibly-mythic"]:
                                     mythics.add(player_id)
                                     mythic_placements[hero_name].append(placement)
