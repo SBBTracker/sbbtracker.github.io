@@ -18,7 +18,7 @@ except:
 
 names_to_id = {ids[template_id]["Name"]: ids[template_id]["Id"] for template_id in ids}
 
-patch_date = datetime.date(2022, 5, 3)
+patch_date = datetime.date(2022, 5, 2)
 # https://9n2ntsouxb.execute-api.us-east-1.amazonaws.com/prod/api/v1/data/daily-rollup/2022-02-11.tar.gz
 rollup_base = "https://9n2ntsouxb.execute-api.us-east-1.amazonaws.com/prod/api/v1/data/daily-rollup/"
 
