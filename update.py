@@ -70,19 +70,25 @@ for player in os.listdir("data"):
                 placement = match_dict["placement"]
                 build_id = match_dict['build-id'] if 'build-id' in match_dict else ''
                 if match_dict["combat-info"]:
-                    combat = match_dict["combat-info"][0]
-                    if player_id in combat and 'hero' in combat[player_id]:
-                        hero_id = combat[player_id]['hero']
-                        if hero_id in ids:
-                            hero_name = ids[hero_id]['Name']
-                            sbb_id = ids[hero_id]['Id']
-                            if hero_name is not None and "SBB_HERO" in sbb_id:
-                                if match_dict["possibly-mythic"]:
-                                    mythics.add(player_id)
-                                    mythic_placements[hero_name].append(placement)
-                                else:
-                                    nonmythic_placements[hero_name].append(placement)
-                                    nonmythic_players.add(player_id)
+                    player_ids = set()
+                    for combat_info in match_dict["combat-info"]:
+                        for key in combat_info:
+                            if key not in ["round", "sim-results"]:
+                                player_ids.add(key)
+                    if placement <= 8 and len(player_ids) <= 8:
+                        combat = match_dict["combat-info"][0]
+                        if player_id in combat and 'hero' in combat[player_id]:
+                            hero_id = combat[player_id]['hero']
+                            if hero_id in ids:
+                                hero_name = ids[hero_id]['Name']
+                                sbb_id = ids[hero_id]['Id']
+                                if hero_name is not None and "SBB_HERO" in sbb_id:
+                                    if match_dict["possibly-mythic"]:
+                                        mythics.add(player_id)
+                                        mythic_placements[hero_name].append(placement)
+                                    else:
+                                        nonmythic_placements[hero_name].append(placement)
+                                        nonmythic_players.add(player_id)
 
 total_nonmythic_places = []
 total_mythic_places = []
