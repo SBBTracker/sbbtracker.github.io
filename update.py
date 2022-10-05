@@ -18,7 +18,7 @@ except:
 
 names_to_id = {ids[template_id]["Name"]: ids[template_id]["Id"] for template_id in ids}
 
-patch_date = datetime.date(2022, 9, 13)
+patch_date = datetime.date(2022, 10, 4)
 # https://9n2ntsouxb.execute-api.us-east-1.amazonaws.com/prod/api/v1/data/daily-rollup/2022-02-11.tar.gz
 rollup_base = "https://9n2ntsouxb.execute-api.us-east-1.amazonaws.com/prod/api/v1/data/daily-rollup/"
 
@@ -82,7 +82,7 @@ for player in os.listdir("data"):
                             if hero_id in ids:
                                 hero_name = ids[hero_id]['Name']
                                 sbb_id = ids[hero_id]['Id']
-                                if hero_name is not None and "SBB_HERO" in sbb_id:
+                                if hero_name is not None and "_HERO_" in sbb_id:
                                     if match_dict["possibly-mythic"]:
                                         mythics.add(player_id)
                                         mythic_placements[hero_name].append(placement)
